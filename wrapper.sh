@@ -20,10 +20,8 @@ if [ ! -d $path_to_time_stats ]; then
 fi
 path_to_star_index="../data/star_index/"
 
-if false; then
 # build index for star
 ./mapping.sh star_index "$ref_gtf" "$ref_fasta"
-fi
 
 # cellwise-operation
 for i in "$path_to_fastq"*_1.fastq;
