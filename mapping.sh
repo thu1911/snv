@@ -31,18 +31,19 @@ star_mapping(){
     fastq2="$path_to_fastq""$filename"_2.fastq
     output="$path_to_bam""$filename"
     start_STAR=`date +%s`
-    STAR --runThreadN 20 --genomeDir "$path_to_star_index" \
+    # the threads of star mapping can be set as 20
+    STAR --runThreadN 10 --genomeDir "$path_to_star_index" \
         --readFilesIn $fastq1 $fastq2 \
         --outSAMtype BAM SortedByCoordinate \
         --outFileNamePrefix $output \
         --quantMode TranscriptomeSAM 
-     samtools index -@ 20 ""$output"Aligned.sortedByCoord.out.bam"
+     samtools index -@ 10 ""$output"Aligned.sortedByCoord.out.bam"
 
     # this part is for quantmode, we need to sort and index it
-     samtools sort -@ 20 ""$output"Aligned.toTranscriptome.out.bam" \
+     samtools sort -@ 10 ""$output"Aligned.toTranscriptome.out.bam" \
          -T ""$output"tmp" \
          -o ""$output"Aligned.toTranscriptome.sortedByCoord.out.bam"
-     samtools index -@ 20 ""$output"Aligned.toTranscriptome.sortedByCoord.out.bam"
+     samtools index -@ 10 ""$output"Aligned.toTranscriptome.sortedByCoord.out.bam"
     stop_STAR=`date +%s`
     time_file="$path_to_time_stats"time_STAR.csv
     # check if time file exist. if not, add header
@@ -57,7 +58,7 @@ samtools_index_bam(){
     # one arg
     # we need BAM filename (without locaton) 
     filename=$1
-    samtools index -@ 20 $filename
+    samtools index -@ 10 $filename
 }
     
 samtools_sort_bam(){

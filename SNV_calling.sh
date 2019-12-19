@@ -18,10 +18,7 @@ ref_fasta=$2
 filename=$3
 picard=$4
 gatk=$5
-ref_snp1=${6:SNP_reference_without_given}
-ref_snp2=${7:SNP_reference_without_given}
-ref_indel1=${8:Indel_reference_without_given}
-ref_indel2=${9:Indel_reference_without_given}
+ref_snp=${6:SNP_reference_without_given}
 
 # folder path
 path_to_bam="../data/bam/"
@@ -63,7 +60,6 @@ myRGID="$filename"'_RGID'
 myRGLB=$filename
 myRGPU=$filename
 myRGSM=$filename
-if false; then
 java -jar $picard AddOrReplaceReadGroups \
     I=$in_bam \
     O=$addrg_bam \
@@ -72,42 +68,30 @@ java -jar $picard AddOrReplaceReadGroups \
     RGPL=illumina \
     RGPU=$myRGPU \
     RGSM=$myRGSM
-fi
 # markduplicates
 dedup_bam="$path_to_cell_level_snv""$filename"'_sort_rg_dedup.bam'
 metrics="$path_to_cell_level_snv""$filename"'_metrics.txt'
-if false; then
 java -jar $picard MarkDuplicates \
     INPUT=$addrg_bam \
     OUTPUT=$dedup_bam \
     METRICS_FILE=$metrics
-fi
 # split N CIGAR for RNA
 split_bam="$path_to_cell_level_snv""$filename"'_sort_rg_dedup_split.bam'
-if false; then
 $gatk SplitNCigarReads -R $ref_fasta -I $dedup_bam -O $split_bam 
-fi
 # Base Quality Recalibration
 recal_table="$path_to_cell_level_snv""$filename"'_recal_table.txt'
-if false; then
 $gatk BaseRecalibrator -R $ref_fasta -I $split_bam -O $recal_table \
-    --known-sites $ref_snp1 --known-sites $ref_snp2 \
-    --known-sites $ref_indel1 --known-sites $ref_indel2 
-fi
+    --known-sites $ref_snp
 # PrintReads
 recal_reads_bam="$path_to_cell_level_snv""$filename"'_sort_rg_dedup_recal.bam'
-if false; then
 $gatk PrintReads -R $ref_fasta -I $split_bam -O $recal_reads_bam 
-fi
 # ApplyBQSR
 gatk_bam="$path_to_cell_level_snv""$filename"'_gatk.bam'
-if false; then
 $gatk ApplyBQSR -I $recal_reads_bam -O $gatk_bam --bqsr-recal-file $recal_table
-fi
 # HaplotypeCaller
 raw_variants="$path_to_cell_level_snv""$filename"'_raw_variants.vcf'
 $gatk HaplotypeCaller -R $ref_fasta -I $gatk_bam  --dont-use-soft-clipped-bases \
-    -stand-call-conf 20 --native-pair-hmm-threads 16 -O $raw_variants
+    -stand-call-conf 20 --native-pair-hmm-threads 8 -O $raw_variants
 # VariantFiltration
 filtered_variants="$path_to_cell_level_snv""$filename"'_filtered.vcf'
 $gatk VariantFiltration -R $ref_fasta -V $raw_variants --filter-name FS -filter "FS > 30.0" --filter-name QD -filter "QD < 2.0" -O $filtered_variants
