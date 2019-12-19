@@ -9,11 +9,12 @@ ref_fasta=$2
 filename=$3
 picard=$4
 gatk=$5
-ref_snp=${6:SNP_reference_without_given}
+ref_snp=$6
+ref_indel=$7
 # mapping
 ./mapping.sh star_mapping $filename
 
 # quantify
 ./quantify.sh featurecounts $ref_gtf $filename 
-./SNV_calling.sh $ref_gtf $ref_fasta $filename $picard $gatk $ref_snp
+./SNV_calling.sh $ref_gtf $ref_fasta $filename $picard $gatk $ref_snp $ref_indel
 

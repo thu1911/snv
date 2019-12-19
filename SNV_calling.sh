@@ -18,7 +18,8 @@ ref_fasta=$2
 filename=$3
 picard=$4
 gatk=$5
-ref_snp=${6:SNP_reference_without_given}
+ref_snp=$6
+ref_indel=$7
 
 # folder path
 path_to_bam="../data/bam/"
@@ -81,7 +82,7 @@ $gatk SplitNCigarReads -R $ref_fasta -I $dedup_bam -O $split_bam
 # Base Quality Recalibration
 recal_table="$path_to_cell_level_snv""$filename"'_recal_table.txt'
 $gatk BaseRecalibrator -R $ref_fasta -I $split_bam -O $recal_table \
-    --known-sites $ref_snp
+    --known-sites $ref_snp --known-sites $ref_indel
 # PrintReads
 recal_reads_bam="$path_to_cell_level_snv""$filename"'_sort_rg_dedup_recal.bam'
 $gatk PrintReads -R $ref_fasta -I $split_bam -O $recal_reads_bam 

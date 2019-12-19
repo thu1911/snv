@@ -4,7 +4,7 @@ ref_gtf="/data8t/mtx/useful_data/realdata/hg19/gencode.v19.annotation.gtf"
 picard="/home/mtx/software/picard.jar"
 gatk="/home/mtx/software/gatk-4.1.4.1/gatk"
 ref_snp="/data8t/mtx/useful_data/realdata/hg19/dbsnp_138.hg19.vcf"
-
+ref_indel="/data8t/mtx/useful_data/realdata/hg19/1000G_phase1.indels.hg19.sites.vcf"
 # path setting
 path_to_fastq="../data/fastq/"
 if [ ! -d $path_to_fastq ]; then
@@ -27,7 +27,7 @@ path_to_star_index="../data/star_index/"
 for i in "$path_to_fastq"*_1.fastq;
 do
     filename=`echo $i |awk -F/ '{print $NF}' |  awk 'gsub("_1.fastq","")'` 
-    ./cell_level_analysis.sh $ref_gtf $ref_fasta $filename $picard $gatk $ref_snp 
+    ./cell_level_analysis.sh $ref_gtf $ref_fasta $filename $picard $gatk $ref_snp $ref_indel
 done
 
 
