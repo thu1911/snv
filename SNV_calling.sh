@@ -63,7 +63,6 @@ myRGID="$filename"'_RGID'
 myRGLB=$filename
 myRGPU=$filename
 myRGSM=$filename
-if false; then
 java -jar $picard AddOrReplaceReadGroups \
     I=$in_bam \
     O=$addrg_bam \
@@ -72,51 +71,38 @@ java -jar $picard AddOrReplaceReadGroups \
     RGPL=illumina \
     RGPU=$myRGPU \
     RGSM=$myRGSM
-fi
 # markduplicates
 dedup_bam="$path_to_cell_level_snv""$filename"'_sort_rg_dedup.bam'
 metrics="$path_to_cell_level_snv""$filename"'_metrics.txt'
-if false; then
 java -jar $picard MarkDuplicates \
     INPUT=$addrg_bam \
     OUTPUT=$dedup_bam \
     METRICS_FILE=$metrics
-fi
 # split N CIGAR for RNA
 split_bam="$path_to_cell_level_snv""$filename"'_sort_rg_dedup_split.bam'
-if false; then
 $gatk SplitNCigarReads -R $ref_fasta -I $dedup_bam -O $split_bam 
-fi
 # Base Quality Recalibration
 recal_table="$path_to_cell_level_snv""$filename"'_recal_table.txt'
-if false; then
 $gatk BaseRecalibrator -R $ref_fasta -I $split_bam -O $recal_table \
     --known-sites $ref_snp1 --known-sites $ref_snp2 \
-    --known-sites $ref_indel1 --known-sites $ref_indel2
-fi
+    --known-sites $ref_indel1 --known-sites $ref_indel2 \
+    -nct 20
 # PrintReads
 recal_reads_bam="$path_to_cell_level_snv""$filename"'_sort_rg_dedup_recal.bam'
-if false; then
-$gatk PrintReads -R $ref_fasta -I $split_bam -O $recal_reads_bam
-fi
+$gatk PrintReads -R $ref_fasta -I $split_bam -O $recal_reads_bam -nct 20
 # ApplyBQSR
 gatk_bam="$path_to_cell_level_snv""$filename"'_gatk.bam'
-if false; then
 $gatk ApplyBQSR -I $recal_reads_bam -O $gatk_bam --bqsr-recal-file $recal_table
-fi
 # HaplotypeCaller
 raw_variants="$path_to_cell_level_snv""$filename"'_raw_variants.vcf'
-if false; then
-$gatk HaplotypeCaller -R $ref_fasta -I $gatk_bam -O $raw_variants
-fi
+$gatk HaplotypeCaller -R $ref_fasta -I $gatk_bam  --dontUseSoftClippedBases \
+    -stand_call_conf 20 -O $raw_variants
 # VariantFiltration
 filtered_variants="$path_to_cell_level_snv""$filename"'_filtered.vcf'
-$gatk VariantFiltration -R $ref_fasta -V $raw_variants -window 35 -cluster 3 --filter-name FS -filter "FS > 30.0" --filter-name QD -filter "QD < 2.0" -O $filtered_variants
+$gatk VariantFiltration -R $ref_fasta -V $raw_variants --filter-name FS -filter "FS > 30.0" --filter-name QD -filter "QD < 2.0" -O $filtered_variants
+# Filter out PASS item
+filtered_pass_variants="$path_to_cell_level_snv""$filename"'_filtered_pass.vcf'
+cat $filtered_variants | grep -e "#\|PASS"  > $filtered_pass_variants
 stop_GATK=`date +%s`
 echo $filename","$((stop_GATK-start_GATK)) >> $gatk_time_stats
 
-
-if false; then
-$path_to_gatk/gatk VariantFiltration -R $faFile -V $outDir/$sample.pre.vcf -window 35 -cluster 3 --filter-name FS -filter "FS > 30.0" --filter-name QD -filter "QD < 2.0" -O $outDir/$sample.filtered.vcf
-cat $outDir/$sample.filtered.vcf |grep -e "#\|PASS"  >$outDir/${sample}.vcf
-fi
