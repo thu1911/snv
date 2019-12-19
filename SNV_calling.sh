@@ -117,7 +117,6 @@ echo $filename","$((stop_GATK-start_GATK)) >> $gatk_time_stats
 
 
 if false; then
-$path_to_gatk/gatk HaplotypeCaller -R $faFile -I $inBam --recover-dangling-heads true --dont-use-soft-clipped-bases -stand-call-conf 0 -O $outDir/$sample.pre.vcf #to adjust parameters
 $path_to_gatk/gatk VariantFiltration -R $faFile -V $outDir/$sample.pre.vcf -window 35 -cluster 3 --filter-name FS -filter "FS > 30.0" --filter-name QD -filter "QD < 2.0" -O $outDir/$sample.filtered.vcf
 cat $outDir/$sample.filtered.vcf |grep -e "#\|PASS"  >$outDir/${sample}.vcf
 fi
