@@ -35,7 +35,7 @@ do
     ./cell_level_analysis.sh $ref_gtf $ref_fasta $filename $picard $gatk $ref_snp1 $ref_snp2 $ref_indel1 $ref_indel2
 done
 
-if fasle; then
+if false; then
 
 # generate statistic
 ./make_matrix.sh star_statistic
