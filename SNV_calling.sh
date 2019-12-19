@@ -85,11 +85,10 @@ $gatk SplitNCigarReads -R $ref_fasta -I $dedup_bam -O $split_bam
 recal_table="$path_to_cell_level_snv""$filename"'_recal_table.txt'
 $gatk BaseRecalibrator -R $ref_fasta -I $split_bam -O $recal_table \
     --known-sites $ref_snp1 --known-sites $ref_snp2 \
-    --known-sites $ref_indel1 --known-sites $ref_indel2 \
-    -nct 20
+    --known-sites $ref_indel1 --known-sites $ref_indel2 
 # PrintReads
 recal_reads_bam="$path_to_cell_level_snv""$filename"'_sort_rg_dedup_recal.bam'
-$gatk PrintReads -R $ref_fasta -I $split_bam -O $recal_reads_bam -nct 20
+$gatk PrintReads -R $ref_fasta -I $split_bam -O $recal_reads_bam 
 # ApplyBQSR
 gatk_bam="$path_to_cell_level_snv""$filename"'_gatk.bam'
 $gatk ApplyBQSR -I $recal_reads_bam -O $gatk_bam --bqsr-recal-file $recal_table
