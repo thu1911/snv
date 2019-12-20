@@ -101,4 +101,3 @@ filtered_pass_variants="$path_to_cell_level_snv""$filename"'_filtered_pass.vcf'
 cat $filtered_variants | grep -e "#\|PASS"  > $filtered_pass_variants
 stop_GATK=`date +%s`
 echo $filename","$((stop_GATK-start_GATK)) >> $gatk_time_stats
-
