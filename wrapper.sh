@@ -1,10 +1,29 @@
 #!/bin/bash
-ref_fasta="/data8t/mtx/useful_data/realdata/hg19/hg19.fa"
-ref_gtf="/data8t/mtx/useful_data/realdata/hg19/gencode.v19.annotation.gtf"
+# one argument, organism, human or mouse
+
+# set reference 
+organism=$1
+if [ "$#" -ne 1 ]; then
+    echo "Please check your argument. It should be "human" or "mouse""
+    exit 1
+fi
+if [ $organism == 'mouse' ]; then
+    ref_fasta="/data8t/mtx/useful_data/realdata/mm10/mm10.fa"
+    ref_gtf="/data8t/mtx/useful_data/realdata/mm10/gencode.vM23.annotation.gtf"
+    ref_snp="/data8t/mtx/useful_data/realdata/mm10/mgp.v3.snps.rsIDdbSNPv137.mm10.sorted.vcf"
+    ref_indel="/data8t/mtx/useful_data/realdata/mm10/mgp.v3.indels.rsIDdbSNPv137.mm10.sorted.vcf"
+elif [ $organism == 'human' ]; then
+    ref_fasta="/data8t/mtx/useful_data/realdata/hg19/hg19.fa"
+    ref_gtf="/data8t/mtx/useful_data/realdata/hg19/gencode.v19.annotation.gtf"
+    ref_snp="/data8t/mtx/useful_data/realdata/hg19/dbsnp_138.hg19.vcf"
+    ref_indel="/data8t/mtx/useful_data/realdata/hg19/1000G_phase1.indels.hg19.sites.vcf"
+else
+    echo "Please check your argument. It should be "human" or "mouse""
+    exit 1
+fi
 picard="/home/mtx/software/picard.jar"
 gatk="/home/mtx/software/gatk-4.1.4.1/gatk"
-ref_snp="/data8t/mtx/useful_data/realdata/hg19/dbsnp_138.hg19.vcf"
-ref_indel="/data8t/mtx/useful_data/realdata/hg19/1000G_phase1.indels.hg19.sites.vcf"
+
 # path setting
 path_to_fastq="../data/fastq/"
 if [ ! -d $path_to_fastq ]; then
