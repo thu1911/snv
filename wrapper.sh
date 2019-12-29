@@ -1,4 +1,16 @@
 #!/bin/bash
+#number of task
+N=2
+tempfifo=$$.fifo
+trap "exec 1000>&-;exec 1000<&-;exit 0" 2
+mkfifo $tempfifo
+exec 1000<>$tempfifo
+rm -rf $tempfifo
+
+for ((i=1; i<=$N; i++))
+do
+        echo >&1000
+done
 # one argument, organism, human or mouse
 
 # set reference 
@@ -45,10 +57,14 @@ path_to_star_index="../data/star_index/"
 # cellwise-operation
 for i in "$path_to_fastq"*_1.fastq;
 do
-    filename=`echo $i |awk -F/ '{print $NF}' |  awk 'gsub("_1.fastq","")'` 
-    ./cell_level_analysis.sh $ref_gtf $ref_fasta $filename $picard $gatk $ref_snp $ref_indel
+    read -u1000
+    {
+        filename=`echo $i |awk -F/ '{print $NF}' |  awk 'gsub("_1.fastq","")'`
+        ./cell_level_analysis.sh $ref_gtf $ref_fasta $filename $picard $gatk $ref_snp $ref_indel
+        echo >&1000
+    } &
 done
-
+wait
 
 # generate statistic
 ./make_matrix.sh star_statistic
