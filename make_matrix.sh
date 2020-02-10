@@ -54,6 +54,7 @@ featurecounts_statistic(){
     # 1st parameter is input folder
     # 2nd parameter is output file name with location
     python ./generate_gene_expression_matrix.py "$path_to_input" "$outputfile_gene_expression"
+    python ./normalization_gene_expression_matrix.py "$path_to_output"
     # feature summary matrix
     if [ ! -f "$outputfile_featurecounts_summary" ]; then
         echo 'no feature summary CSV. Build a new one!'
